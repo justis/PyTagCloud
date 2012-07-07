@@ -115,11 +115,17 @@ def _draw_cloud(
         tag_sprite.rect.y = ypos
 
         placement._search_place(tag_sprite, aligned_tags, canvas, spiral, ratio)
+
+    canvas = placement._get_tags_bounding(aligned_tags)
+    zoom = min(float(size[0]) / canvas.w, float(size[1]) / canvas.h)
+    _resize_cloud(aligned_tags, zoom)
+
+    # get resized canvas
     canvas = placement._get_tags_bounding(aligned_tags)
 
-    # resize cloud
-    zoom = min(float(size[0]) / canvas.w, float(size[1]) / canvas.h)
-    
+    return canvas, aligned_tags
+
+def _resize_cloud(aligned_tags, zoom):
     for tag in aligned_tags:
         tag.rect.x *= zoom
         tag.rect.y *= zoom
@@ -127,10 +133,6 @@ def _draw_cloud(
         tag.rect.height *= zoom
         tag.tag['size'] = int(tag.tag['size'] * zoom)
         tag.update_fontsize() 
-
-    canvas = placement._get_tags_bounding(aligned_tags)
-
-    return canvas, aligned_tags
 
 def create_tag_image(
         tags, 
@@ -161,3 +163,8 @@ def create_tag_image(
     for tag in tag_store:
         image_surface.blit(tag.image, tag.rect)
     pygame.image.save(image_surface, output)
+    return tag_store
+
+def draw_tags(tag_store, target_surface, background=(255,255,255)):
+    for tag in tag_store:
+        target_surface.blit(tag.image, tag.rect)
