@@ -26,7 +26,7 @@ class Tag(Sprite):
         self.font = fonts.get_font(self.font_spec, self.tag['size'])
         self.draw()
 
-    def draw(self):
+    def draw(self, surface=None):
         fonter = self.font.render(self.tag['tag'], True, self.tag['color'])
         frect = fonter.get_bounding_rect()
         frect.x = -frect.x
@@ -34,13 +34,26 @@ class Tag(Sprite):
         self.fontoffset = (-frect.x, -frect.y)
         font_sf = pygame.Surface((frect.width, frect.height), pygame.SRCALPHA, 32)
         font_sf.blit(fonter, frect)
+        if False:
+            surface.blit(fonter, frect)
+            self._update_mask()
+            return
+            
         self.image = font_sf
         if not hasattr(self, 'rect'):
             self.rect = font_sf.get_rect()
             self.rect.width += TAG_PADDING
             self.rect.height += TAG_PADDING
-            self.rect.x = self.position[0]
-            self.rect.y = self.position[1]
+            self.rect.x, self.rect.y = self.position
+        else:
+            old_rect = self.rect
+            self.rect = font_sf.get_rect()
+            self.rect.width += TAG_PADDING
+            self.rect.height += TAG_PADDING
+            #self.rect.x, self.rect.y = old_rect.x, old_rect.y
+            #self.rect.x, self.rect.y = self.box2d_body.b2body.position
+            #print self.box2d_body.position
+            
         self._update_mask()
 
     def _update_mask(self):
@@ -52,11 +65,14 @@ class Tag(Sprite):
         self.rotate(angle)
 
     def rotate(self, angle):
-        pos = (self.rect.x, self.rect.y)
+        #pos = (self.rect.x, self.rect.y)
         self.image = pygame.transform.rotate(self.image, angle)
-        self.rect = self.image.get_rect()
-        self.rect.x, self.rect.y = pos
+        #self.rect = self.image.get_rect()
+        #self.rect.x, self.rect.y = pos
         self._update_mask()
 
-    def update_fontsize(self):
-        self.font = fonts.get_font(self.font_spec, self.tag['size'])
+    def update_fontsize(self, scale=1.0):
+        size = int(self.tag['size'] * scale)
+        if size < 10: size = 10
+        #size = 30
+        self.font = fonts.get_font(self.font_spec, size)

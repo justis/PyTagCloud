@@ -167,4 +167,5 @@ def create_tag_image(
 
 def draw_tags(tag_store, target_surface, background=(255,255,255)):
     for tag in tag_store:
+        #pygame.draw.rect(target_surface, (0,255,0), tag.rect)
         target_surface.blit(tag.image, tag.rect)
